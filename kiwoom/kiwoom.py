@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QAxContainer import *
 COM_CODE = "005930" # 삼성전자
-COM_DATE = "20190516" # 기준일자 600 거래일 전일 부터 현제까지 받아옴
+COM_DATE = "20190516"
 class KiwoomAPIWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -31,30 +31,20 @@ class KiwoomAPIWindow(QMainWindow):
         # sRQName, sTrCode, nPrevNext, sScreenNo
         res = self.kiwoom.CommRqData("opt10081_주가조회", "opt10081", 0, "10081")
         if res == 0:
-            print('주가 요청 성공!!!!!!' + str(res))
+            print('주가 요청' + str(res))
         else:
-            print('주가 요청 실패 !!!!!!' + str(res))
+            print('주가 요청' + str(res))
     # CallBack 함수
     def event_connect(self, nErrCode):
         if nErrCode == 0:
             self.text_edit.append("Login Success")
     # CallBack 함수
-    def receive_trdata(self, sScrNo, sRQName, sTrCode, sRecordName, sPreNext, nDataLength, sErrorCode, sMessage, sSplmMsg):
-        if sRQName == "opt10081_주가조회":
-            dataCount = self.kiwoom.GetRepeatCnt(sTrCode, sRQName)
-            print('총 데이터 수 : ', dataCount)
-            code = self.kiwoom.GetCommData(sTrCode, sRQName, 0, "종목코드")
-            print("종목코드: " + code)
-            print("------------------------------")
-            # 가장최근에서 10 거래일 전까지 데이터 조회
-            for dataIdx in range(0, 10):
-                inputVal = ["일자", "거래량", "시가", "고가", "저가", "현재가"]
-                outputVal = ['', '', '', '', '', '']
-                for idx, j in enumerate(inputVal):
-                    outputVal[idx] = self.kiwoom.GetCommData(sTrCode, sRQName, dataIdx, j)
-                for idx, output in enumerate(outputVal):
-                    print(inputVal[idx] + output)
-                print('----------------')
+    def receive_trdata(self):
+        accounts = self.kiwoom.GetLoginInfo("ACCNO")
+        account = accounts.split(';')
+        print(account[0])
+        self.kiwoom.SendOrder("시장가매수", "0101", account[0], 1, "005930", 10, 0, "03", "")
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     kaWindow = KiwoomAPIWindow()
