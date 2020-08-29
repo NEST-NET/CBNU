@@ -45,7 +45,6 @@ class KiwoomAPIWindow(QMainWindow):
         print(account[0])
         self.kiwoom.SendOrder("시장가매수", "0101", account[0], 1, "005930", 10, 0, "03", "")
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     kaWindow = KiwoomAPIWindow()
